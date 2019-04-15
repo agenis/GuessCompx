@@ -1,0 +1,19 @@
+Package: GuessCompx
+Type: Package
+Title: Empirically Estimates Algorithm Complexity
+Version: 0.1.0
+Author: Marc Agenis <marc.agenis@gmail.com>
+Maintainer: Marc Agenis <marc.agenis@gmail.com>
+Description: Make an empirical guess on the time and memory complexities of an algorithm or a function.
+    Tests multiple, increasing size random samples of your data and tries to fit various complexity functions o(n), o(n2), o(log(n)), etc.
+    Based on best fit, it predicts the full computation time on your whole dataset. Results are plotted with ggplot.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: 
+  dplyr,
+  reshape2,
+  ggplot2,
+  lubridate,
+  boot
