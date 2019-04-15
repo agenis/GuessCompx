@@ -27,7 +27,7 @@ The package will be submitted to CRAN and hopefully available there soon. Meanwh
 ``` r
 # install.packages("devtools")
 library(devtools)
-install_github("agenis/abc")
+install_github("agenis/GuessCompx")
 library(GuessCompx)
 ?CompEst
 ```
