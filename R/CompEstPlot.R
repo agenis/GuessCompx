@@ -9,7 +9,11 @@
 #' @return a ggplot object
 #'
 CompEstPlot = function(to.plot, element_title = list("",""), use="time"){
-
+  size <- NULL
+  time <- NULL
+  best.model <- NULL
+  memory <- NULL
+  model <- NULL
   if (use=="time"){
 
     g <- ggplot(to.plot[to.plot$model!="time", ]) +

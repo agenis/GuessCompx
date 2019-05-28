@@ -19,32 +19,45 @@
 #'
 #' @export
 #' @import dplyr
+#' @importFrom stats anova
+#' @importFrom stats fitted
+#' @importFrom utils memory.size
+#' @importFrom utils tail
+#' @importFrom utils head
+#' @importFrom utils memory.limit
 #' @importFrom reshape2 melt
 #' @importFrom boot cv.glm
 #'
 #' @examples
-#' # Dummy function that mimics a constant time complexity and N.log(N) memory complexity:
+#' # Dummy function that mimics a constant time complexity and
+#' # N.log(N) memory complexity:
 #' f1 = function(df){
-#'   Sys.sleep(rnorm(1, 0.5, 0.1))
-#'   v = rnorm(n = nrow(df)*log(nrow(df))*(runif(1, 1e4, 2e4)))
+#'   Sys.sleep(rnorm(1, 0.1, 0.02))
+#'   v = rnorm(n = nrow(df)*log(nrow(df))*(runif(1, 1e3, 1.1e3)))
 #' }
-#' out = CompEst(d = mtcars, f = f1, replicates=5, start.size=2)
-#' # Raises an alert for TIME complexity. Sometimes confuses MEMORY complexity with linear:
+#' out = CompEst(d = mtcars, f = f1, replicates=2, start.size=2, max.time = 1)
+#' # Raises an alert for TIME complexity.
+#' # Sometimes confuses MEMORY complexity with linear:
 #' print(out)
-#'
+#'\dontrun{
 #' # Real dist function analysis (everything is quadratic here):
 #' f2 = dist
-#' d  = ggplot2::diamonds[, 5:10]
-#' CompEst(d = d, f = f2, replicates = 10, max.time = 10)
+#' d  = ggplot2::diamonds[, 5:8]
+#' CompEst(d = d, f = f2, replicates = 1, max.time = 1)
 #'
-#' # For time series functions, your `f` argument may include ts() to avoid loosing this ts attribute at sampling
+#' # For time series functions, your `f` argument may include ts()
+#' # to avoid loosing this ts attribute at sampling
 #' # It is also recommended to set `start.size` argument to 3 periods at least.
 #' f = function(d) arima(ts(d, freq = 12), order=c(1,0,1), seasonal = c(0,1,1))
 #' d = ggplot2::txhousing$sales
 #' # Should return a linear trend for TIME:
 #' CompEst(d, f, start.size = 4*12, random.sampling = FALSE)
+#' }
 CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NULL, replicates = 4, strata = NULL, power.factor = 2, alpha.value=0.005, plot.result = TRUE) {
 
+  size <- NULL
+  NlogN_X <- NULL
+  model <- NULL
   dataset_name   <- deparse(substitute(d))
   algorithm_name <- deparse(substitute(f))
 
@@ -154,3 +167,4 @@ CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NU
               "TIME COMPLEXITY RESULTS" = output.time,
               "MEMORY COMPLEXITY RESULTS" = output.memory))
 }
+

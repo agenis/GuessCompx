@@ -4,6 +4,7 @@
 #' @param use a string indicatif if the function deals "time" or "memory" data
 #'
 #' @import dplyr
+#' @importFrom stats glm
 #'
 #' @return a list with all the fitted complexity model.
 #'

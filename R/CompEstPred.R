@@ -6,6 +6,7 @@
 #' @param use a string indicatif if the function deals "time" or "memory" data
 #'
 #' @importFrom lubridate seconds_to_period
+#' @importFrom stats predict
 #'
 #' @return a string of the predicted time for the whole dataset
 #'
