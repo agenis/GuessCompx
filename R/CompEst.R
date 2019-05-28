@@ -13,7 +13,7 @@
 #' @param alpha.value the alpha risk of the test whether the model is significantly different from a constant relation. Default is 0.005.
 #' @param plot.result boolean indicatif if a summary plot of all the complexity functions is to be displayed
 #'
-#' @return A list with the best complexity function and the computation time on the whole dataset.
+#' @return A list with the best complexity function and the computation time on the whole dataset, for both time and memory complexity (Windows) and time complexity only (all other OS).
 #'
 #' @details The fit of a complexity function is one among: constant, linear, quadratic, cubic, logarithmic, square.root, n.log(n). Model comparison is achieved using Leave-One-Out error minimisation of the MSE (see `boot::cv.glm` doc). Note that when a CONSTANT relationship is predicted, it might simply mean that the max.time value is too low to show any tendency. For time series, the sampling removes the ts attribute to the input vector, so the user's function shall include again this ts() if a frequency is needed; also remind to avoid random sampling for it will break the series.
 #'
@@ -55,7 +55,8 @@
 #' }
 CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NULL, replicates = 4, strata = NULL, power.factor = 2, alpha.value=0.005, plot.result = TRUE) {
 
-  is_myOS_windows <- Sys.info()["sysname"] %in% c("windows", "Windows", "WINDOWS")
+  # is_myOS_windows <- Sys.info()["sysname"] %in% c("windows", "Windows", "WINDOWS")
+  is_myOS_windows <- !is.infinite(suppressWarnings(memory.size(max = FALSE)))
   size <- NULL
   NlogN_X <- NULL
   model <- NULL

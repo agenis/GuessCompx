@@ -47,6 +47,8 @@ library(GuessCompx)
 
 ```
 
+Note on the memory complexity: memory analysis relies on the `memory.size()` function to estimate the trend and this function only works on Windows machines. If another OS is detected, the algorithm will skip the memory part. 
+
 ## Example
 
 Here, `CompEst()` is used to show the quadratic complexity of the `dist()` function:

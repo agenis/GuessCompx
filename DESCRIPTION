@@ -6,7 +6,7 @@ Author: Marc Agenis <marc.agenis@gmail.com> and Neeraj Bokde <neerajdhanraj@gmai
 Maintainer: Marc Agenis <marc.agenis@gmail.com>
 Description: Make an empirical guess on the time and memory complexities of an algorithm or a function.
     Tests multiple, increasing size random samples of your data and tries to fit various complexity functions o(n), o(n2), o(log(n)), etc.
-    Based on best fit, it predicts the full computation time on your whole dataset. Results are plotted with ggplot.
+    Based on best fit, it predicts the full computation time on your whole dataset. Results are plotted with ggplot2.
 BugReports: https://github.com/agenis/GuessCompx/issues
 URL: https://github.com/agenis/GuessCompx
 License: GPL-3
