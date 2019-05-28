@@ -55,6 +55,7 @@
 #' }
 CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NULL, replicates = 4, strata = NULL, power.factor = 2, alpha.value=0.005, plot.result = TRUE) {
 
+  is_myOS_windows <- Sys.info()["sysname"] %in% c("windows", "Windows", "WINDOWS")
   size <- NULL
   NlogN_X <- NULL
   model <- NULL
@@ -95,16 +96,27 @@ CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NU
     } else {
       sampled.data     <- do.call("rbind", by(d, d[strata], GroupedSampleFracAtLeastOneSample, prop = sample.sizes[i]/N))
     }
-    gc(); gc();
-    memory.before    <- memory.size()
-    recorded.times   <- append(recorded.times, system.time(     f(sampled.data)     )[3])
-    memory.after     <- memory.size()
-    gc(); gc();
-    recorded.mems    <- append(recorded.mems, memory.after - memory.before)
-    i                <- i+1
+    if (is_myOS_windows){
+      gc(); gc();
+      memory.before    <- memory.size()
+      recorded.times   <- append(recorded.times, system.time(     f(sampled.data)     )[3])
+      memory.after     <- memory.size()
+      gc(); gc();
+      recorded.mems    <- append(recorded.mems, memory.after - memory.before)
+      i                <- i+1
+    } else {
+      gc(); gc();
+      # memory.before    <- memory.size()
+      recorded.times   <- append(recorded.times, system.time(     f(sampled.data)     )[3])
+      # memory.after     <- memory.size()
+      gc(); gc();
+      # recorded.mems    <- append(recorded.mems, memory.after - memory.before)
+      i                <- i+1
+    }
+
   }
   recorded.times = tail(recorded.times, -1)
-  recorded.mems  = tail(recorded.mems,  -1)
+  if (is_myOS_windows) { recorded.mems  = tail(recorded.mems,  -1) }
 
   if (length(recorded.times) %in% c(1, 2)) {
     stop("The allowed max.time value is too small to run the algorithm on more than 2 sample sizes. Unable to proceed with cross-validation or model fitting. Stopping the process. Please increase max.time or decrease start.size.")
@@ -115,7 +127,7 @@ CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NU
   temp        <- CompEstBenchmark(data.frame('size'   = head(sample.sizes, length(recorded.times)),
                                              'time'   = recorded.times,
                                              "memory" = recorded.mems) %>%
-                                           mutate(NlogN_X = size*log(size)), use="time")
+                                    mutate(NlogN_X = size*log(size)), use="time")
   model.list  <- temp[[1]]
   to.model    <- temp[[2]]
   benchmark   <- lapply(model.list, function(x) cv.glm(to.model, x)$delta[2])
@@ -138,29 +150,33 @@ CompEst = function(d, f, random.sampling = FALSE, max.time = 30, start.size = NU
 
   # MEMORY RESULTS
 
-  temp        <- CompEstBenchmark(data.frame('size'   = head(sample.sizes, length(recorded.times)),
-                                             'time'   = recorded.times,
-                                             "memory" = recorded.mems) %>%
-                                    mutate(NlogN_X = size*log(size)), use="memory")
-  model.list  <- temp[[1]]
-  to.model    <- temp[[2]]
-  benchmark   <- lapply(model.list, function(x) cv.glm(to.model, x)$delta[2])
-  best.model  <- names(which.min(benchmark))
-  if (best.model=="constant") message("Best model CONSTANT for memory can be caused by not choosing a sufficiently high max.time value")
-  full.memory <- CompEstPred(model.list, benchmark, N, use="memory")
-  signif.test <- tail(anova(model.list[[which.min(benchmark)]], test="F")$Pr, 1)
-  uncertain   <- is.na(signif.test) | signif.test > alpha.value
-  if ( uncertain ) message("warning: best MEMORY model not significantly different from a constant relationship. Increase max.time or replicates.")
-  output.memory = list(
-    'best.model' = toupper(best.model),
-    'memory.usage.on.full.dataset' = full.memory,
-    'system.memory.limit' = paste0(memory.limit(), " Mb"),
-    'p.value.model.significance' = signif.test
-  )
-  if (plot.result==TRUE) {
-    custom_titles = list("Complexity Fit against MEMORY USAGE",   paste0("ALGORITHM: ", algorithm_name, "() // DATASET: ", dataset_name, " // STRATA: ", ifelse(is.null(strata), "None", strata))  )
-    to.plot <- to.model %>% select(-NlogN_X) %>% melt(measure.vars=c(3, 4:10), value.name="memory", variable.name="model") %>% mutate(best.model = model==best.model)
-    print(CompEstPlot(to.plot, element_title = custom_titles, use="memory"))
+  if (is_myOS_windows){
+    temp        <- CompEstBenchmark(data.frame('size'   = head(sample.sizes, length(recorded.times)),
+                                               'time'   = recorded.times,
+                                               "memory" = recorded.mems) %>%
+                                      mutate(NlogN_X = size*log(size)), use="memory")
+    model.list  <- temp[[1]]
+    to.model    <- temp[[2]]
+    benchmark   <- lapply(model.list, function(x) cv.glm(to.model, x)$delta[2])
+    best.model  <- names(which.min(benchmark))
+    if (best.model=="constant") message("Best model CONSTANT for memory can be caused by not choosing a sufficiently high max.time value")
+    full.memory <- CompEstPred(model.list, benchmark, N, use="memory")
+    signif.test <- tail(anova(model.list[[which.min(benchmark)]], test="F")$Pr, 1)
+    uncertain   <- is.na(signif.test) | signif.test > alpha.value
+    if ( uncertain ) message("warning: best MEMORY model not significantly different from a constant relationship. Increase max.time or replicates.")
+    output.memory = list(
+      'best.model' = toupper(best.model),
+      'memory.usage.on.full.dataset' = full.memory,
+      'system.memory.limit' = paste0(memory.limit(), " Mb"),
+      'p.value.model.significance' = signif.test
+    )
+    if (plot.result==TRUE) {
+      custom_titles = list("Complexity Fit against MEMORY USAGE",   paste0("ALGORITHM: ", algorithm_name, "() // DATASET: ", dataset_name, " // STRATA: ", ifelse(is.null(strata), "None", strata))  )
+      to.plot <- to.model %>% select(-NlogN_X) %>% melt(measure.vars=c(3, 4:10), value.name="memory", variable.name="model") %>% mutate(best.model = model==best.model)
+      print(CompEstPlot(to.plot, element_title = custom_titles, use="memory"))
+    }
+  } else {
+    output.memory = list("Warning" = "Memory analysis is only available for Windows OS")
   }
 
   return(list("sample.sizes" = sample.sizes,
