@@ -36,15 +36,20 @@ The **plot output** helps to compare the fit of each complexity function to the 
 
 ## Installation
 
-The package will be submitted to CRAN and hopefully available there soon. Meanwhile, you can install the beta version of GuessCompx from Github:
+The package can be downloaded from the CRAN repositories:
+
+``` r
+install.packages("GuessCompx")
+library(GuessCompx)
+?CompEst
+```
+
+You can also download it from Github:
 
 ``` r
 # install.packages("devtools")
 library(devtools)
 install_github("agenis/GuessCompx")
-library(GuessCompx)
-?CompEst
-
 ```
 
 Note on the memory complexity: memory analysis relies on the `memory.size()` function to estimate the trend and this function only works on Windows machines. If another OS is detected, the algorithm will skip the memory part. 
